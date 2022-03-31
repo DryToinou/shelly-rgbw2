@@ -17,6 +17,8 @@ export class ExamplePlatformAccessory {
   private exampleStates = {
     On: false,
     Brightness: 100,
+    Hue: 0,
+    Saturation: .0,
   };
 
   constructor(
@@ -48,8 +50,16 @@ export class ExamplePlatformAccessory {
 
     // register handlers for the Brightness Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+      .onSet(this.setBrightness.bind(this))       // SET - bind to the 'setBrightness` method below
+      .onGet(this.getBrightness.bind(this));
 
+    this.service.getCharacteristic(this.platform.Characteristic.Hue)
+      .onSet(this.setHue.bind(this))
+      .onGet(this.getHue.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.Saturation)
+      .onSet(this.setSaturation.bind(this))
+      .onGet(this.getSaturation.bind(this));
     /**
      * Creating multiple services of the same type.
      *
@@ -59,16 +69,7 @@ export class ExamplePlatformAccessory {
      *
      * The USER_DEFINED_SUBTYPE must be unique to the platform accessory (if you platform exposes multiple accessories, each accessory
      * can use the same sub type id.)
-     */
-
-    // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
-
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
-
-    /**
+     *
      * Updating characteristics values asynchronously.
      *
      * Example showing how to update the state of a Characteristic asynchronously instead
@@ -76,19 +77,7 @@ export class ExamplePlatformAccessory {
      * Here we change update the motion sensor trigger states on and off every 10 seconds
      * the `updateCharacteristic` method.
      *
-     */
-    let motionDetected = false;
-    setInterval(() => {
-      // EXAMPLE - inverse the trigger
-      motionDetected = !motionDetected;
-
-      // push the new value to HomeKit
-      motionSensorOneService.updateCharacteristic(this.platform.Characteristic.MotionDetected, motionDetected);
-      motionSensorTwoService.updateCharacteristic(this.platform.Characteristic.MotionDetected, !motionDetected);
-
-      this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
-      this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
+     **/
   }
 
   /**
@@ -100,6 +89,27 @@ export class ExamplePlatformAccessory {
     this.exampleStates.On = value as boolean;
 
     this.platform.log.debug('Set Characteristic On ->', value);
+  }
+
+  async setBrightness(value: CharacteristicValue) {
+    // implement your own code to set the brightness
+    this.exampleStates.Brightness = value as number;
+
+    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+  }
+
+  async setHue(value: CharacteristicValue) {
+    // implement your own code to set the brightness
+    this.exampleStates.Hue = value as number;
+
+    this.platform.log.debug('Set Characteristic Hue -> ', value);
+  }
+
+  async setSaturation(value: CharacteristicValue) {
+    // implement your own code to set the brightness
+    this.exampleStates.Saturation = value as number;
+
+    this.platform.log.debug('Set Characteristic Saturation -> ', value);
   }
 
   /**
@@ -115,6 +125,7 @@ export class ExamplePlatformAccessory {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
+
   async getOn(): Promise<CharacteristicValue> {
     // implement your own code to check if the device is on
     const isOn = this.exampleStates.On;
@@ -127,15 +138,40 @@ export class ExamplePlatformAccessory {
     return isOn;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, changing the Brightness
-   */
-  async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
-    this.exampleStates.Brightness = value as number;
+  async getBrightness(): Promise<CharacteristicValue> {
+    // implement your own code to check if the device is on
+    const currentBrightness = this.exampleStates.Brightness;
 
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    this.platform.log.debug('Get Characteristic Brightness ->', currentBrightness);
+
+    // if you need to return an error to show the device as "Not Responding" in the Home app:
+    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+
+    return currentBrightness;
+  }
+
+  async getHue(): Promise<CharacteristicValue> {
+    // implement your own code to check if the device is on
+    const currentHue = this.exampleStates.Hue;
+
+    this.platform.log.debug('Get Characteristic Hue ->', currentHue);
+
+    // if you need to return an error to show the device as "Not Responding" in the Home app:
+    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+
+    return currentHue;
+  }
+
+  async getSaturation(): Promise<CharacteristicValue> {
+    // implement your own code to check if the device is on
+    const currentSaturation = this.exampleStates.Saturation;
+
+    this.platform.log.debug('Get Characteristic Saturation ->', currentSaturation);
+
+    // if you need to return an error to show the device as "Not Responding" in the Home app:
+    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+
+    return currentSaturation;
   }
 
 }
